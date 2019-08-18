@@ -1,19 +1,20 @@
 package com.ducat.controllers;
 
 import java.util.Optional;
-
+import javax.validation.Valid;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.ducat.daos.UserDao;
 import com.ducat.entities.User;
+import com.ducat.validators.MailValidator;
 
 @Controller
 @RequestMapping(path="/userapp")
@@ -26,19 +27,40 @@ public class UserController {
 	@Autowired
 	HttpSession session;
 	
+	@Autowired
+	MailValidator validator;
+	
 	// method to serve the home page
 	@RequestMapping(path="/",method= RequestMethod.GET)
-	public String home() {
-		return "index";
+	public ModelAndView home() {
+		ModelAndView mav = new ModelAndView("index");
+		mav.addObject("user", new User());
+		return mav;
 	}
 	
 	// method to register a user
 	@RequestMapping(path="/register",method= RequestMethod.POST)
-	public String signup(
-		@ModelAttribute	User user) {
+	public ModelAndView signup(
+		@Valid @ModelAttribute	User user,
+		BindingResult validationResult) {
+		// predefined validations are applied, apply
+		// the custom validation before checking errors
+		validator.validate(user, validationResult);
+		
+		ModelAndView mav = new ModelAndView();
+		
+		if(validationResult.hasErrors()) {
+			System.out.println("Validation failed.");
+			mav.setViewName("register");
+			mav.addObject("user",user);
+			
+		} else {
+		System.out.println("no validation failed.");	
 		// user object is saved in the DB.
 		dao.save(user);
-		return "registered";
+		mav.setViewName("registered");
+		}
+		return mav;
 	}
 	
 	// method to login a user

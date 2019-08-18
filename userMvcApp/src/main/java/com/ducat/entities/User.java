@@ -1,6 +1,9 @@
 package com.ducat.entities;
 
 import javax.persistence.*;
+import javax.validation.constraints.*;
+import org.hibernate.validator.constraints.Length;
+
 
 @Entity
 @Table(name="UsersMaster")
@@ -9,7 +12,14 @@ public class User {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private int id;
-	private String name,mailId,password,roles;
+	@Pattern(regexp="[a-z,A-Z]{2}[a-z,A-Z]*",message="Name can have only alphabets.")
+	private String name;
+	@NotEmpty(message="Mailid is required.")
+	@Email(message="MailId should be in proper format.")
+	private String mailId;
+	@Length(min=4, message="Password must have at least 4 chars.")
+	private String password;
+	private String roles;
 	
 	public int getId() {
 		return id;
