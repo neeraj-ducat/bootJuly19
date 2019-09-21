@@ -20,6 +20,7 @@ public class CourseController {
 	// To fetch all courses.
 	@GetMapping(value="/courses", produces="application/json")
 	public Iterable<Course> getAllCourses() {
+		
 		return dao.findAll();
 	}
 	
